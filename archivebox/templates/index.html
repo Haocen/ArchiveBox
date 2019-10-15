@@ -163,6 +163,13 @@
                 border-radius: 4px;
                 float:right
             }
+            .archive-new-link {
+                width: 100%;
+                padding: 20px 0;
+            }
+            .archive-new-link input {
+                width: 50%;
+            }
         </style>
         <link rel="stylesheet" href="static/jquery.dataTables.min.css"/>
         <script src="static/jquery.min.js"></script>
@@ -179,6 +186,31 @@
                     iDisplayLength: 100,
                     scrollX: true
                 });
+
+                const newLinkInput = document.querySelector('#new-link');
+                if (newLinkInput instanceof HTMLElement) {
+                    newLinkInput.addEventListener('keydown', function(e) {
+                        if (event.key === 'Enter') {
+                            newLinkInput.disabled = true;
+                            const link = newLinkInput.value;
+                            const req = new XMLHttpRequest();
+                            req.onreadystatechange = function() {
+                                if (req.readyState === XMLHttpRequest.DONE) {
+                                    if (req.status >= 200 && req.status < 300) {
+                                        location.reload();
+                                    } else {
+                                        alert('Cannot archive provided link');
+                                        newLinkInput.disabled = false;
+                                    }
+                                }
+                            };
+                            const params = new URLSearchParams();
+                            params.append('url', link);
+                            req.open('GET', '/api?' + params.toString(), true);
+                            req.send();
+                        }
+                    });
+                }
             });
         </script>
     </head>
@@ -201,6 +233,10 @@
                 <small>Last updated $time_updated</small>
             </div>
         </header>
+        <div class="archive-new-link">
+            <label for="new-link">Archive new link: </label>
+            <input type="text" name="new-link" id="new-link">
+        </div>
         <table id="table-bookmarks">
             <thead>
                 <tr>
