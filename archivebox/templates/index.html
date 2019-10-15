@@ -1,6 +1,7 @@
 <html lang="en">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <meta name="viewport" content="initial-scale=1">
         <title>Archived Sites</title>
         <style>
             :root {
@@ -85,6 +86,10 @@
             }
             header + div {
                 padding-top: 10px;
+            }
+            .container {
+                width: 100%;
+                overflow-y: scroll;
             }
             #table-bookmarks_length, #table-bookmarks_filter {
                 padding: 0px 15px;
@@ -198,17 +203,19 @@
                 <small>Last updated $time_updated</small>
             </div>
         </header>
-        <table id="table-bookmarks">
-            <thead>
-                <tr>
-                    <th style="width: 80px;">Bookmarked</th>
-                    <th style="width: 26vw;">Saved Link ($num_links)</th>
-                    <th style="width: 50px">Files</th>
-                    <th style="width: 16vw;whitespace:nowrap;overflow-x:hidden;">Original URL</th>
-                </tr>
-            </thead>
-            <tbody>$rows</tbody>
-        </table>
+        <div class="container">
+            <table id="table-bookmarks">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;">Bookmarked</th>
+                        <th style="width: 26vw;">Saved Link ($num_links)</th>
+                        <th style="width: 50px">Files</th>
+                        <th style="width: 16vw;whitespace:nowrap;overflow-x:hidden;">Original URL</th>
+                    </tr>
+                </thead>
+                <tbody>$rows</tbody>
+            </table>
+        </div>
         <footer>
             <br/>
             <center>

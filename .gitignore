@@ -6,6 +6,7 @@ __pycache__/
 archivebox.egg-info/
 build/
 dist/
+.vscode
 
 
 # Dependency code
