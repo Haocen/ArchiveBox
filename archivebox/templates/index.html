@@ -170,6 +170,9 @@
             .archive-new-link input {
                 width: 50%;
             }
+            .archive-new-link input[type="submit"] {
+                width: 8em;
+            }
         </style>
         <link rel="stylesheet" href="static/jquery.dataTables.min.css"/>
         <script src="static/jquery.min.js"></script>
@@ -187,29 +190,37 @@
                     scrollX: true
                 });
 
-                const newLinkInput = document.querySelector('#new-link');
-                if (newLinkInput instanceof HTMLElement) {
-                    newLinkInput.addEventListener('keydown', function(e) {
-                        if (event.key === 'Enter') {
-                            newLinkInput.disabled = true;
-                            const link = newLinkInput.value;
-                            const req = new XMLHttpRequest();
-                            req.onreadystatechange = function() {
-                                if (req.readyState === XMLHttpRequest.DONE) {
-                                    if (req.status >= 200 && req.status < 300) {
-                                        location.reload();
-                                    } else {
-                                        alert('Cannot archive provided link');
-                                        newLinkInput.disabled = false;
-                                    }
+                const newLinkForm = document.querySelector('form.archive-new-link');
+                if (newLinkForm instanceof HTMLElement) {
+                    newLinkForm.onsubmit = function(e) {
+                        e.preventDefault();
+                        const params = new URLSearchParams();
+                        newLinkForm.querySelectorAll('input').forEach(
+                            (i) => {
+                                if (i.name && i.value) {
+                                    params.append(i.name, i.value);
                                 }
-                            };
-                            const params = new URLSearchParams();
-                            params.append('url', link);
-                            req.open('GET', '/api?' + params.toString(), true);
-                            req.send();
-                        }
-                    });
+                                i.disabled = true;
+                            }
+                        );
+                        const req = new XMLHttpRequest();
+                        req.onreadystatechange = function() {
+                            if (req.readyState === XMLHttpRequest.DONE) {
+                                if (req.status >= 200 && req.status < 300) {
+                                    location.reload();
+                                } else {
+                                    alert('Cannot archive provided link');
+                                    newLinkForm.querySelectorAll('input').forEach(
+                                        (i) => {
+                                            i.disabled = false;
+                                        }
+                                    );
+                                }
+                            }
+                        };
+                        req.open('GET', '/api?' + params.toString(), true);
+                        req.send();
+                    };
                 }
             });
         </script>
@@ -233,10 +244,11 @@
                 <small>Last updated $time_updated</small>
             </div>
         </header>
-        <div class="archive-new-link">
+        <form class="archive-new-link">
             <label for="new-link">Archive new link: </label>
-            <input type="text" name="new-link" id="new-link">
-        </div>
+            <input type="text" name="url">
+            <input type="submit" value="Add">
+        </form>
         <table id="table-bookmarks">
             <thead>
                 <tr>
