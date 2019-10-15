@@ -67,6 +67,7 @@
                 color: var(--text-1);
             }
             .header-center {
+                display: inline-block;
                 margin: auto;
                 float: none;
                 text-align: center;
@@ -86,10 +87,6 @@
             }
             header + div {
                 padding-top: 10px;
-            }
-            .container {
-                width: 100%;
-                overflow-y: scroll;
             }
             #table-bookmarks_length, #table-bookmarks_filter {
                 padding: 0px 15px;
@@ -180,6 +177,7 @@
                     dom: '<lf<t>ip>', // how to show the table and its helpers (filter, etc) in the DOM
                     order: [[0, 'desc']],
                     iDisplayLength: 100,
+                    scrollX: true
                 });
             });
         </script>
@@ -203,19 +201,17 @@
                 <small>Last updated $time_updated</small>
             </div>
         </header>
-        <div class="container">
-            <table id="table-bookmarks">
-                <thead>
-                    <tr>
-                        <th style="width: 80px;">Bookmarked</th>
-                        <th style="width: 26vw;">Saved Link ($num_links)</th>
-                        <th style="width: 50px">Files</th>
-                        <th style="width: 16vw;whitespace:nowrap;overflow-x:hidden;">Original URL</th>
-                    </tr>
-                </thead>
-                <tbody>$rows</tbody>
-            </table>
-        </div>
+        <table id="table-bookmarks">
+            <thead>
+                <tr>
+                    <th style="width: 80px;">Bookmarked</th>
+                    <th style="width: 26vw;">Saved Link ($num_links)</th>
+                    <th style="width: 50px">Files</th>
+                    <th style="width: 16vw;whitespace:nowrap;overflow-x:hidden;">Original URL</th>
+                </tr>
+            </thead>
+            <tbody>$rows</tbody>
+        </table>
         <footer>
             <br/>
             <center>
