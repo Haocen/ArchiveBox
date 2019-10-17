@@ -187,7 +187,12 @@
                     dom: '<lf<t>ip>', // how to show the table and its helpers (filter, etc) in the DOM
                     order: [[0, 'desc']],
                     iDisplayLength: 100,
-                    scrollX: true
+                    scrollX: true,
+                    columnDefs: {
+                        targets: 4,
+                        searchable: false,
+                        orderable: false
+                    }
                 });
 
                 const newLinkForm = document.querySelector('form.archive-new-link');
@@ -221,6 +226,38 @@
                         req.open('GET', '/api?' + params.toString(), true);
                         req.send();
                     };
+                }
+
+                const bookmarkedTableBody = document.querySelector('#table-bookmarks tbody');
+                if (bookmarkedTableBody instanceof HTMLElement) {
+                    bookmarkedTableBody.addEventListener('click', function(e) {
+                        const el = e.target;
+                        if (el.classList.contains('purge-link') && el.type === 'button') {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const params = new URLSearchParams();
+                            for (const attr in el.dataset) {
+                                params.append(attr, el.dataset[attr]);
+                            }
+                            const req = new XMLHttpRequest();
+                            req.onreadystatechange = function() {
+                                if (req.readyState === XMLHttpRequest.DONE) {
+                                    if (req.status >= 200 && req.status < 300) {
+                                        location.reload();
+                                    } else {
+                                        alert('Cannot purge provided link');
+                                        newLinkForm.querySelectorAll('input').forEach(
+                                            (i) => {
+                                                i.disabled = false;
+                                            }
+                                        );
+                                    }
+                                }
+                            };
+                            req.open('DELETE', '/api?' + params.toString(), true);
+                            req.send();
+                        }
+                    });
                 }
             });
         </script>
@@ -256,6 +293,7 @@
                     <th style="width: 26vw;">Saved Link ($num_links)</th>
                     <th style="width: 50px">Files</th>
                     <th style="width: 16vw; white-space:nowrap; overflow-x:hidden;">Original URL</th>
+                    <th style="width: 50px">Purge</th>
                 </tr>
             </thead>
             <tbody>$rows</tbody>
