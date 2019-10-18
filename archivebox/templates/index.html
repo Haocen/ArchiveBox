@@ -232,7 +232,7 @@
                 if (bookmarkedTableBody instanceof HTMLElement) {
                     bookmarkedTableBody.addEventListener('click', function(e) {
                         const el = e.target;
-                        if (el.classList.contains('purge-link') && el.type === 'button') {
+                        if (el.classList.contains('purge-link') && el.tagName === 'INPUT' && el.type === 'button') {
                             e.preventDefault();
                             e.stopPropagation();
                             const params = new URLSearchParams();
@@ -256,6 +256,40 @@
                             };
                             req.open('DELETE', '/api?' + params.toString(), true);
                             req.send();
+                        }
+                    });
+                }
+
+                const body = document.querySelector('body');
+                if (body instanceof HTMLElement) {
+                    body.addEventListener('click', function(e) {
+                        let el = e.target;
+                        while (el.tagName !== 'A' && el.parentNode !== null) {
+                            el = el.parentNode;
+                        }
+                        if (el.tagName === 'A' && typeof el.href === 'string') {
+                            const url = new URL(el.href);
+                            if (url.hostname === location.hostname) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                const req = new XMLHttpRequest();
+                                req.onreadystatechange = function() {
+                                    if (req.readyState === XMLHttpRequest.DONE) {
+                                        if (req.status >= 400) {
+                                            alert('Link is not ready yet');
+                                        } else if (req.status >= 200 || req.status < 400) {
+                                            window.open(
+                                                el.href,
+                                                el.target || '_self',
+                                                typeof el.rel === 'string' ?
+                                                    el.rel.split(' ').join(',') : ''
+                                            );
+                                        }
+                                    }
+                                };
+                                req.open('HEAD', url.toString());
+                                req.send();
+                            }
                         }
                     });
                 }
