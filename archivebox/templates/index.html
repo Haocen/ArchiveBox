@@ -268,7 +268,7 @@
                         while (el.tagName !== 'A' && el.parentNode !== null) {
                             el = el.parentNode;
                         }
-                        if (el.tagName === 'A' && typeof el.href === 'string') {
+                        if (el.tagName === 'A' && typeof el.href === 'string' && el.href.length > 0) {
                             const url = new URL(el.href);
                             if (url.hostname === location.hostname) {
                                 e.preventDefault();
