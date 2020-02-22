@@ -47,7 +47,7 @@ def cleanup_index(regexes: List[str], proceed: bool, delete: bool) -> None:
         exit('Aborted')
 
     write_json_links_index(OUTPUT_DIR, remaining)
-    write_html_links_index(OUTPUT_DIR, remaining)
+    write_html_links_index(OUTPUT_DIR, remaining, True)
 
     if delete:
         for link, _ in filtered:
