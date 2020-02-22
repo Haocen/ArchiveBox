@@ -3,7 +3,7 @@
 <h1>ArchiveBox<br/><sub>The open-source self-hosted web archive.</sub></h1>
 
 ▶️ <a href="https://github.com/pirate/ArchiveBox/wiki/Quickstart">Quickstart</a> | 
-<a href="https://archive.sweeting.me">Demo</a> | 
+<a href="https://archivebox.zervice.io/">Demo</a> | 
 <a href="https://github.com/pirate/ArchiveBox">Github</a> | 
 <a href="https://github.com/pirate/ArchiveBox/wiki">Documentation</a> | 
 <a href="#background--motivation">Info & Motivation</a> | 
@@ -45,7 +45,7 @@ echo 'http://example.com' | ./archive
 ```
 After installing the dependencies, just pipe some new links into the `./archive` command to start your archive.
 
-ArchiveBox is written in Python 3.5 and uses wget, Chrome headless, youtube-dl, pywb, and other common UNIX tools to save each page you add in multiple redundant formats.  It doesn't require a constantly running server or backend, just open the generated `output/index.html` in a browser to view the archive. It can import and export links as JSON (among other formats), so it's easy to script or hook up to other APIs.  If you run it on a schedule and import from browser history or bookmarks regularly, you can sleep soundly knowing that the slice of the internet you care about will be automatically preserved in multiple, durable long-term formats that will be accessible for decades (or longer).
+ArchiveBox is written in Python 3.7 and uses wget, Chrome headless, youtube-dl, pywb, and other common UNIX tools to save each page you add in multiple redundant formats.  It doesn't require a constantly running server or backend, just open the generated `output/index.html` in a browser to view the archive. It can import and export links as JSON (among other formats), so it's easy to script or hook up to other APIs.  If you run it on a schedule and import from browser history or bookmarks regularly, you can sleep soundly knowing that the slice of the internet you care about will be automatically preserved in multiple, durable long-term formats that will be accessible for decades (or longer).
 
 <div align="center">
 
@@ -59,7 +59,7 @@ ArchiveBox is written in Python 3.5 and uses wget, Chrome headless, youtube-dl, 
 
 ## Quickstart
 
-ArchiveBox has [3 main dependencies](https://github.com/pirate/ArchiveBox/wiki/Install#dependencies) beyond `python3`: `wget`, `chromium`, and `youtube-dl`.
+ArchiveBox is written in `python3.7` and has [3 main binary dependencies](https://github.com/pirate/ArchiveBox/wiki/Install#dependencies): `wget`, `chromium`, and `youtube-dl`.
 To get started, you can [install them manually](https://github.com/pirate/ArchiveBox/wiki/Install) using your system's package manager, use the [automated helper script](https://github.com/pirate/ArchiveBox/wiki/Quickstart), or use the official [Docker](https://github.com/pirate/ArchiveBox/wiki/Docker) container.  All three dependencies are optional if [disabled](https://github.com/pirate/ArchiveBox/wiki/Configuration#archive-method-toggles) in settings.
 
 ```bash
@@ -75,7 +75,7 @@ echo 'https://example.com' | ./archive                  # pass URLs to archive v
 ./archive https://getpocket.com/users/example/feed/all  # or import an RSS/JSON/XML/TXT feed
 ```
 
-Once you've added your first links, open `output/index.html` in a browser to view the archive.  [DEMO: archive.sweeting.me](https://archive.sweeting.me)  
+Once you've added your first links, open `output/index.html` in a browser to view the archive.  [DEMO: archivebox.zervice.io/](https://archivebox.zervice.io)  
 For more information, see the [full Quickstart guide](https://github.com/pirate/ArchiveBox/wiki/Quickstart), [Usage](https://github.com/pirate/ArchiveBox/wiki/Usage), and [Configuration](https://github.com/pirate/ArchiveBox/wiki/Configuration) docs.  
 
 *(`pip install archivebox` will be available in the near future, follow our [Roadmap](https://github.com/pirate/ArchiveBox/wiki/Roadmap) for progress)*
