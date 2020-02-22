@@ -1,7 +1,6 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <meta name="viewport" content="initial-scale=1">
         <title>$title</title>
         <style>
             html, body {
@@ -26,7 +25,6 @@
                 font-weight: 200;
                 font-family: "Gill Sans", Helvetica, sans-serif;
                 font-size: calc(16px + 1vw);
-                overflow-x: scroll;
             }
             .collapse-icon {
                 float: right;
@@ -63,9 +61,6 @@
             }
             .archive-page-header .alert {
                 margin-bottom: 0px;
-            }
-            .nowarp {
-                white-space: nowrap;
             }
             h1 small {
                 opacity: 0.4;
@@ -194,27 +189,21 @@
         <div class="site-header container-fluid">
             <div class="row archive-page-header">
                 <div class="col-lg-4 alert well">
-                    <span class="nowarp">Bookmarked: <small title="Timestamp: $timestamp">$bookmarked_date</small></span>
+                    Bookmarked: <small title="Timestamp: $timestamp">$bookmarked_date</small>
                     &nbsp; | &nbsp;
-                    <span class="nowarp">Last updated: <small title="Timestamp: $updated">$updated_date</small></span>
+                    Last updated: <small title="Timestamp: $updated">$updated_date</small>
                     &nbsp; | &nbsp;
-                    <span class="nowarp">Total files: <small title="Archive methods">🗃 $num_outputs</small></span>
+                    Total files: <small title="Archive methods">🗃 $num_outputs</small>
                 </div>
                 <div class="col-lg-4 alert well">
-                    <span class="nowarp">
                     Type: 
                     <span class="badge badge-default">$extension</span>
-                    </span>
                     &nbsp; | &nbsp;
-                    <span class="nowarp">
                     Tags:
                     <span class="badge badge-warning">$tags</span> 
-                    </span>
                     &nbsp; | &nbsp;
-                    <span class="nowarp">
                     Status:
-                    <span class="badge badge-$status_color">$status</span>
-                    </span>
+                    <span class="badge badge-$status_color">$status</span> 
                 </div>
                 <div class="col-lg-4 alert well">
                     Archive Methods:
@@ -230,7 +219,10 @@
                     <div class="card selected-card">
                       <iframe class="card-img-top" src="$archive_url" sandbox="allow-same-origin allow-scripts allow-forms" scrolling="no"></iframe>
                       <div class="card-body">
-                        <a href="$archive_url" target="_blank" rel="noopener noreferrer"><h4 class="card-title">Local Archive</h4></a>
+                        <a href="$archive_url" style="float:right" title="Open in new tab..." target="_blank" rel="noopener">
+                            <img src="../../static/external.png" class="external"/>
+                        </a>
+                        <a href="$archive_url" target="preview"><h4 class="card-title">Local Archive</h4></a>
                         <p class="card-text">archive/$domain</p>
                       </div>
                     </div>
@@ -239,7 +231,10 @@
                     <div class="card">
                       <iframe class="card-img-top" src="$dom_url" sandbox="allow-same-origin allow-scripts allow-forms" scrolling="no"></iframe>
                       <div class="card-body">
-                        <a href="$dom_url" target="_blank" rel="noopener noreferrer"><h4 class="card-title">HTML</h4></a>
+                        <a href="$dom_url" style="float:right" title="Open in new tab..." target="_blank" rel="noopener">
+                            <img src="../../static/external.png" class="external"/>
+                        </a>
+                        <a href="$dom_url" target="preview"><h4 class="card-title">HTML</h4></a>
                         <p class="card-text">archive/output.html</p>
                       </div>
                     </div>
@@ -248,7 +243,10 @@
                     <div class="card">
                       <iframe class="card-img-top pdf-frame" src="$pdf_url" scrolling="no"></iframe>
                       <div class="card-body">
-                        <a href="$pdf_url" target="_blank" rel="noopener noreferrer" id="pdf-btn"><h4 class="card-title">PDF</h4></a>
+                        <a href="$pdf_url" style="float:right" title="Open in new tab..." target="_blank" rel="noopener">
+                            <img src="../../static/external.png" class="external"/>
+                        </a>
+                        <a href="$pdf_url" target="preview" id="pdf-btn"><h4 class="card-title">PDF</h4></a>
                         <p class="card-text">archive/output.pdf</p>
                       </div>
                     </div>
@@ -257,7 +255,10 @@
                     <div class="card">
                       <img class="card-img-top screenshot" src="$screenshot_url"></iframe>
                       <div class="card-body">
-                        <a href="$screenshot_url" target="_blank" rel="noopener noreferrer"><h4 class="card-title">Screenshot</h4></a>
+                        <a href="$screenshot_url" style="float:right" title="Open in new tab..." target="_blank" rel="noopener">
+                            <img src="../../static/external.png" class="external"/>
+                        </a>
+                        <a href="$screenshot_url" target="preview"><h4 class="card-title">Screenshot</h4></a>
                         <p class="card-text">archive/screenshot.png</p>
                       </div>
                     </div>
@@ -266,7 +267,10 @@
                     <div class="card">
                       <iframe class="card-img-top" src="$url" sandbox="allow-same-origin allow-scripts allow-forms" scrolling="no"></iframe>
                       <div class="card-body">
-                        <a href="$url" target="_blank" rel="noopener noreferrer"><h4 class="card-title">Original</h4></a>
+                        <a href="$url" style="float:right" title="Open in new tab..." target="_blank" rel="noopener">
+                            <img src="../../static/external.png" class="external"/>
+                        </a>
+                        <a href="$url" target="preview"><h4 class="card-title">Original</h4></a>
                         <p class="card-text">$domain</p>
                       </div>
                     </div>
@@ -275,7 +279,10 @@
                     <div class="card">
                       <iframe class="card-img-top" src="$archive_org_url" sandbox="allow-same-origin allow-scripts allow-forms" scrolling="no"></iframe>
                       <div class="card-body">
-                        <a href="$archive_org_url" target="_blank" rel="noopener noreferrer"><h4 class="card-title">Archive.Org</h4></a>
+                        <a href="$archive_org_url" style="float:right" title="Open in new tab..." target="_blank" rel="noopener">
+                            <img src="../../static/external.png" class="external"/>
+                        </a>
+                        <a href="$archive_org_url" target="preview"><h4 class="card-title">Archive.Org</h4></a>
                         <p class="card-text">web.archive.org/web/...</p>
                       </div>
                     </div>

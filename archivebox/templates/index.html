@@ -1,18 +1,17 @@
 <html lang="en">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-        <meta name="viewport" content="initial-scale=1">
         <title>Archived Sites</title>
         <style>
             :root {
-                --accent-1: transparent;
+                --accent-1: #aa1e55;
                 --accent-2: #ffebeb;
                 --accent-3: #efefef;
                 
                 --bg-main: #efefef;
                 --text-main: black;
                 --text-1: #1a1a1a;
-                --text-2: black;
+                --text-2: #eaeaea;
             }
             
             @media (prefers-color-scheme: dark) {
@@ -67,7 +66,6 @@
                 color: var(--text-1);
             }
             .header-center {
-                display: inline-block;
                 margin: auto;
                 float: none;
                 text-align: center;
@@ -163,16 +161,6 @@
                 border-radius: 4px;
                 float:right
             }
-            .archive-new-link {
-                width: 100%;
-                padding: 20px 0;
-            }
-            .archive-new-link input {
-                width: 50%;
-            }
-            .archive-new-link input[type="submit"] {
-                width: 8em;
-            }
         </style>
         <link rel="stylesheet" href="static/jquery.dataTables.min.css"/>
         <script src="static/jquery.min.js"></script>
@@ -187,113 +175,7 @@
                     dom: '<lf<t>ip>', // how to show the table and its helpers (filter, etc) in the DOM
                     order: [[0, 'desc']],
                     iDisplayLength: 100,
-                    scrollX: true,
-                    columnDefs: [{
-                        targets: -1,
-                        searchable: false,
-                        orderable: false
-                    }]
                 });
-
-                const newLinkForm = document.querySelector('form.archive-new-link');
-                if (newLinkForm instanceof HTMLElement) {
-                    newLinkForm.onsubmit = function(e) {
-                        e.preventDefault();
-                        const params = new URLSearchParams();
-                        newLinkForm.querySelectorAll('input').forEach(
-                            (i) => {
-                                if (i.name && i.value) {
-                                    params.append(i.name, i.value);
-                                }
-                                i.disabled = true;
-                            }
-                        );
-                        const req = new XMLHttpRequest();
-                        req.onreadystatechange = function() {
-                            if (req.readyState === XMLHttpRequest.DONE) {
-                                if (req.status >= 200 && req.status < 300) {
-                                    newLinkForm.reset();
-                                    location.reload();
-                                } else {
-                                    alert('Cannot archive provided link');
-                                    newLinkForm.querySelectorAll('input').forEach(
-                                        (i) => {
-                                            i.disabled = false;
-                                        }
-                                    );
-                                }
-                            }
-                        };
-                        req.open('GET', '/api?' + params.toString(), true);
-                        req.send();
-                    };
-                }
-
-                const bookmarkedTableBody = document.querySelector('#table-bookmarks tbody');
-                if (bookmarkedTableBody instanceof HTMLElement) {
-                    bookmarkedTableBody.addEventListener('click', function(e) {
-                        const el = e.target;
-                        if (el.classList.contains('purge-link') && el.tagName === 'INPUT' && el.type === 'button') {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            const params = new URLSearchParams();
-                            for (const attr in el.dataset) {
-                                params.append(attr, el.dataset[attr]);
-                            }
-                            const req = new XMLHttpRequest();
-                            req.onreadystatechange = function() {
-                                if (req.readyState === XMLHttpRequest.DONE) {
-                                    if (req.status >= 200 && req.status < 300) {
-                                        location.reload();
-                                    } else {
-                                        alert('Cannot purge provided link');
-                                        newLinkForm.querySelectorAll('input').forEach(
-                                            (i) => {
-                                                i.disabled = false;
-                                            }
-                                        );
-                                    }
-                                }
-                            };
-                            req.open('DELETE', '/api?' + params.toString(), true);
-                            req.send();
-                        }
-                    });
-                }
-
-                const body = document.querySelector('body');
-                if (body instanceof HTMLElement) {
-                    body.addEventListener('click', function(e) {
-                        let el = e.target;
-                        while (el.tagName !== 'A' && el.parentNode !== null) {
-                            el = el.parentNode;
-                        }
-                        if (el.tagName === 'A' && typeof el.href === 'string' && el.href.length > 0) {
-                            const url = new URL(el.href);
-                            if (url.hostname === location.hostname) {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                const req = new XMLHttpRequest();
-                                req.onreadystatechange = function() {
-                                    if (req.readyState === XMLHttpRequest.DONE) {
-                                        if (req.status >= 400) {
-                                            alert('Link is not ready yet');
-                                        } else if (req.status >= 200 || req.status < 400) {
-                                            window.open(
-                                                el.href,
-                                                el.target || '_self',
-                                                typeof el.rel === 'string' ?
-                                                    el.rel.split(' ').join(',') : ''
-                                            );
-                                        }
-                                    }
-                                };
-                                req.open('HEAD', url.toString());
-                                req.send();
-                            }
-                        }
-                    });
-                }
             });
         </script>
     </head>
@@ -316,19 +198,13 @@
                 <small>Last updated $time_updated</small>
             </div>
         </header>
-        <form class="archive-new-link">
-            <label for="new-link">Archive new link: </label>
-            <input type="url" name="url">
-            <input type="submit" value="Add">
-        </form>
         <table id="table-bookmarks">
             <thead>
                 <tr>
                     <th style="width: 80px;">Bookmarked</th>
                     <th style="width: 26vw;">Saved Link ($num_links)</th>
                     <th style="width: 50px">Files</th>
-                    <th style="width: 16vw; white-space:nowrap; overflow-x:hidden;">Original URL</th>
-                    <th style="width: 50px">Purge</th>
+                    <th style="width: 16vw;whitespace:nowrap;overflow-x:hidden;">Original URL</th>
                 </tr>
             </thead>
             <tbody>$rows</tbody>
