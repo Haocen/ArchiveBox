@@ -15,7 +15,7 @@ LABEL maintainer="Nick Sweeting <archivebox-git@sweeting.me>"
 
 RUN apt-get update \
     && apt-get install -yq --no-install-recommends \
-        git wget curl youtube-dl gnupg2 libgconf-2-4 python3 python3-pip \
+        git wget curl youtube-dl gnupg2 libgconf-2-4 python3 python3-pip python3-setuptools \
     && rm -rf /var/lib/apt/lists/*
 
 # Install latest chrome package and fonts to support major charsets (Chinese, Japanese, Arabic, Hebrew, Thai and a few others)
@@ -53,8 +53,8 @@ RUN mkdir -p /data \
     && ln -s /data /home/pptruser/app/archivebox/output \
     && ln -s /home/pptruser/app/bin/* /bin/ \
     && ln -s /home/pptruser/app/bin/archivebox /bin/archive \
-    && chown -R pptruser:pptruser /home/pptruser/app/archivebox
-    # && pip3 install -r /home/pptruser/app/archivebox/requirements.txt
+    && chown -R pptruser:pptruser /home/pptruser/app/archivebox \
+    && pip3 install -r /home/pptruser/app/archivebox/requirements.txt
 
 VOLUME /data
 

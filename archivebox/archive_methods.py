@@ -1,7 +1,9 @@
 import os
+import asyncio
 
 from collections import defaultdict
 from datetime import datetime
+from pyppeteer import launch
 
 from index import (
     write_link_index,
@@ -33,7 +35,9 @@ from config import (
     WGET_USER_AGENT,
     CHECK_SSL_VALIDITY,
     COOKIES_FILE,
-    WGET_AUTO_COMPRESSION
+    WGET_AUTO_COMPRESSION,
+    RESOLUTION,
+    CHROME_OPTIONS,
 )
 from util import (
     domain,
@@ -47,7 +51,7 @@ from util import (
     wget_output_path,
     chrome_args,
     check_link_structure,
-    run, PIPE, DEVNULL
+    run, PIPE, DEVNULL,
 )
 from logs import (
     log_link_archiving_started,
@@ -339,29 +343,58 @@ def fetch_screenshot(link_dir, link, timeout=TIMEOUT):
     """take screenshot of site using chrome --headless"""
 
     output = 'screenshot.png'
-    cmd = [
-        *chrome_args(TIMEOUT=timeout),
-        '--screenshot',
-        link['url'],
-    ]
+    launchOptions = {
+        'executablePath': CHROME_OPTIONS['CHROME_BINARY'],
+        'headless': False,
+        'ignoreHTTPSErrors': True,
+        'userDataDir': CHROME_OPTIONS['CHROME_USER_DATA_DIR'],
+        'args': [],
+    }
+
+    if CHROME_OPTIONS['CHROME_HEADLESS']:
+        launchOptions['headless'] = True
+    
+    if not CHROME_OPTIONS['CHECK_SSL_VALIDITY']:
+        launchOptions['ignoreHTTPSErrors'] = False
+    
+    if not CHROME_OPTIONS['CHROME_SANDBOX']:
+        # dont use GPU or sandbox when running inside docker container
+        launchOptions['args'] += ('--no-sandbox', '--disable-gpu')
+
+    browser = asyncio.get_event_loop().run_until_complete(launch(launchOptions))
+    context = asyncio.get_event_loop().run_until_complete(browser.createIncognitoBrowserContext())
+    page = asyncio.get_event_loop().run_until_complete(context.newPage())
+
+    asyncio.get_event_loop().run_until_complete(page.setUserAgent(CHROME_OPTIONS['CHROME_USER_AGENT']))
+    asyncio.get_event_loop().run_until_complete(page.setViewport({
+        'width': int(RESOLUTION.split(',')[0]),
+        'height': int(RESOLUTION.split(',')[1]),
+    }))
+    
     status = 'succeeded'
     timer = TimedProgress(timeout, prefix='      ')
     try:
-        result = run(cmd, stdout=PIPE, stderr=PIPE, cwd=link_dir, timeout=timeout)
-
-        if result.returncode:
-            hints = (result.stderr or result.stdout).decode()
-            raise ArchiveError('Failed to take screenshot', hints)
+        asyncio.get_event_loop().run_until_complete(page.goto(link['url'], timeout=timeout * 1000, waitUntil='domcontentloaded'))
+        asyncio.get_event_loop().run_until_complete(asyncio.wait_for(page.screenshot(path=os.path.join(link_dir, output), fullPage=True), timeout))
 
         chmod_file(output, cwd=link_dir)
+    except asyncio.TimeoutError as err:
+        status = 'failed'
+        output = err
+        raise ArchiveError('Failed to take screenshot, operation timeout')
     except Exception as err:
         status = 'failed'
         output = err
+        raise ArchiveError('Failed to take screenshot')
     finally:
         timer.end()
 
     return {
-        'cmd': cmd,
+        'cmd': [
+            *chrome_args(TIMEOUT=timeout),
+            '--screenshot',
+            link['url'],
+        ],
         'pwd': link_dir,
         'output': output,
         'status': status,
