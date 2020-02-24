@@ -309,11 +309,16 @@ def fetch_pdf(link_dir, link, timeout=TIMEOUT):
             path=os.path.join(link_dir, output),
             displayHeaderFooter=False, format='A4', printBackground=False,
         ), timeout))
-        
+
         chmod_file('output.pdf', cwd=link_dir)
+    except asyncio.TimeoutError as err:
+        status = 'failed'
+        output = err
+        raise ArchiveError('Failed to print PDF, operation timeout') from err
     except Exception as err:
         status = 'failed'
         output = err
+        raise ArchiveError('Failed to print PDF') from err
     finally:
         timer.end()
 
@@ -354,11 +359,11 @@ def fetch_screenshot(link_dir, link, timeout=TIMEOUT):
     except asyncio.TimeoutError as err:
         status = 'failed'
         output = err
-        raise ArchiveError('Failed to take screenshot, operation timeout')
+        raise ArchiveError('Failed to take screenshot, operation timeout') from err
     except Exception as err:
         status = 'failed'
         output = err
-        raise ArchiveError('Failed to take screenshot')
+        raise ArchiveError('Failed to take screenshot') from err
     finally:
         timer.end()
 
