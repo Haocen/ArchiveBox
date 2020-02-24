@@ -305,9 +305,17 @@ def fetch_pdf(link_dir, link, timeout=TIMEOUT):
     timer = TimedProgress(timeout, prefix='      ')
     try:
         asyncio.get_event_loop().run_until_complete(page.goto(link['url'], timeout=timeout * 1000, waitUntil='domcontentloaded'))
+        # emulate screen
+        asyncio.get_event_loop().run_until_complete(page.emulateMedia('screen'))
         asyncio.get_event_loop().run_until_complete(asyncio.wait_for(page.pdf(
             path=os.path.join(link_dir, output),
-            displayHeaderFooter=False, format='A4', printBackground=False,
+            displayHeaderFooter=True, format='A4', printBackground=True,
+            margin={
+                'top': '10mm',
+                'right': '10mm',
+                'bottom': '10mm',
+                'left': '10mm',
+            },
         ), timeout))
 
         chmod_file('output.pdf', cwd=link_dir)
