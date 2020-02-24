@@ -299,7 +299,8 @@ def fetch_pdf(link_dir, link, timeout=TIMEOUT):
     """print PDF of site to file using chrome --headless"""
 
     output = 'output.pdf'
-    page = asyncio.get_event_loop().run_until_complete(prepare_pyppeteer_page())
+    prepared = asyncio.get_event_loop().run_until_complete(prepare_pyppeteer_page())
+    page, closeBrowser = prepared['page'], prepared['closeBrowser']
 
     status = 'succeeded'
     timer = TimedProgress(timeout, prefix='      ')
@@ -328,6 +329,7 @@ def fetch_pdf(link_dir, link, timeout=TIMEOUT):
         output = err
         raise ArchiveError('Failed to print PDF') from err
     finally:
+        asyncio.get_event_loop().run_until_complete(closeBrowser())
         timer.end()
 
     return {
@@ -355,7 +357,8 @@ def fetch_screenshot(link_dir, link, timeout=TIMEOUT):
     """take screenshot of site using chrome --headless"""
 
     output = 'screenshot.png'
-    page = asyncio.get_event_loop().run_until_complete(prepare_pyppeteer_page())
+    prepared = asyncio.get_event_loop().run_until_complete(prepare_pyppeteer_page())
+    page, closeBrowser = prepared['page'], prepared['closeBrowser']
     
     status = 'succeeded'
     timer = TimedProgress(timeout, prefix='      ')
@@ -373,6 +376,7 @@ def fetch_screenshot(link_dir, link, timeout=TIMEOUT):
         output = err
         raise ArchiveError('Failed to take screenshot') from err
     finally:
+        asyncio.get_event_loop().run_until_complete(closeBrowser())
         timer.end()
 
     return {

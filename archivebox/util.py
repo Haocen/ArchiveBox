@@ -600,6 +600,9 @@ async def prepare_pyppeteer_page(**options):
     context = await browser.createIncognitoBrowserContext()
     page = await context.newPage()
 
+    async def closeBrowser():
+        return await browser.close()    
+
     if options['CHROME_USER_AGENT']:
         await page.setUserAgent(options['CHROME_USER_AGENT'])
 
@@ -609,4 +612,8 @@ async def prepare_pyppeteer_page(**options):
             'height': int(options['RESOLUTION'].split(',')[1]),
         })
 
-    return page
+    return {
+        'page': page,
+        'closeBrowser': closeBrowser,
+        'options': options,
+    }
