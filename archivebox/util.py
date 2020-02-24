@@ -2,6 +2,7 @@ import os
 import re
 import sys
 import time
+import asyncio
 
 from urllib.request import Request, urlopen
 from urllib.parse import urlparse, quote
@@ -16,6 +17,7 @@ from subprocess import (
     TimeoutExpired,
     CalledProcessError,
 )
+from pyppeteer import launch
 
 from config import (
     ANSI,
@@ -568,3 +570,43 @@ def chrome_args(**options):
         cmd_args.append('--user-data-dir={}'.format(options['CHROME_USER_DATA_DIR']))
     
     return cmd_args
+
+async def prepare_pyppeteer_page(**options):
+    """helper to build up a pyppeteer page instance with arguments"""
+
+    options = {**CHROME_OPTIONS, **options}
+
+    launchOptions = {
+        'executablePath': options['CHROME_BINARY'],
+        'headless': False,
+        'ignoreHTTPSErrors': True,
+        'args': [],
+    }
+
+    if options['CHROME_HEADLESS']:
+        launchOptions['headless'] = True
+    
+    if not options['CHECK_SSL_VALIDITY']:
+        launchOptions['ignoreHTTPSErrors'] = False
+    
+    if not options['CHROME_SANDBOX']:
+        # dont use GPU or sandbox when running inside docker container
+        launchOptions['args'] += ('--no-sandbox', '--disable-gpu')
+    
+    if options['CHROME_USER_DATA_DIR']:
+        launchOptions['userDataDir'] = options['CHROME_USER_DATA_DIR']
+
+    browser = await launch(launchOptions)
+    context = await browser.createIncognitoBrowserContext()
+    page = await context.newPage()
+
+    if options['CHROME_USER_AGENT']:
+        await page.setUserAgent(options['CHROME_USER_AGENT'])
+
+    if options['RESOLUTION']:
+        await page.setViewport({
+            'width': int(options['RESOLUTION'].split(',')[0]),
+            'height': int(options['RESOLUTION'].split(',')[1]),
+        })
+
+    return page

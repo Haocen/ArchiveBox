@@ -3,7 +3,6 @@ import asyncio
 
 from collections import defaultdict
 from datetime import datetime
-from pyppeteer import launch
 
 from index import (
     write_link_index,
@@ -36,8 +35,6 @@ from config import (
     CHECK_SSL_VALIDITY,
     COOKIES_FILE,
     WGET_AUTO_COMPRESSION,
-    RESOLUTION,
-    CHROME_OPTIONS,
 )
 from util import (
     domain,
@@ -50,6 +47,7 @@ from util import (
     chmod_file,
     wget_output_path,
     chrome_args,
+    prepare_pyppeteer_page,
     check_link_structure,
     run, PIPE, DEVNULL,
 )
@@ -343,33 +341,7 @@ def fetch_screenshot(link_dir, link, timeout=TIMEOUT):
     """take screenshot of site using chrome --headless"""
 
     output = 'screenshot.png'
-    launchOptions = {
-        'executablePath': CHROME_OPTIONS['CHROME_BINARY'],
-        'headless': False,
-        'ignoreHTTPSErrors': True,
-        'userDataDir': CHROME_OPTIONS['CHROME_USER_DATA_DIR'],
-        'args': [],
-    }
-
-    if CHROME_OPTIONS['CHROME_HEADLESS']:
-        launchOptions['headless'] = True
-    
-    if not CHROME_OPTIONS['CHECK_SSL_VALIDITY']:
-        launchOptions['ignoreHTTPSErrors'] = False
-    
-    if not CHROME_OPTIONS['CHROME_SANDBOX']:
-        # dont use GPU or sandbox when running inside docker container
-        launchOptions['args'] += ('--no-sandbox', '--disable-gpu')
-
-    browser = asyncio.get_event_loop().run_until_complete(launch(launchOptions))
-    context = asyncio.get_event_loop().run_until_complete(browser.createIncognitoBrowserContext())
-    page = asyncio.get_event_loop().run_until_complete(context.newPage())
-
-    asyncio.get_event_loop().run_until_complete(page.setUserAgent(CHROME_OPTIONS['CHROME_USER_AGENT']))
-    asyncio.get_event_loop().run_until_complete(page.setViewport({
-        'width': int(RESOLUTION.split(',')[0]),
-        'height': int(RESOLUTION.split(',')[1]),
-    }))
+    page = asyncio.get_event_loop().run_until_complete(prepare_pyppeteer_page())
     
     status = 'succeeded'
     timer = TimedProgress(timeout, prefix='      ')
