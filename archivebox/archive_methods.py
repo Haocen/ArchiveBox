@@ -299,19 +299,16 @@ def fetch_pdf(link_dir, link, timeout=TIMEOUT):
     """print PDF of site to file using chrome --headless"""
 
     output = 'output.pdf'
-    cmd = [
-        *chrome_args(TIMEOUT=timeout),
-        '--print-to-pdf',
-        link['url'],
-    ]
+    page = asyncio.get_event_loop().run_until_complete(prepare_pyppeteer_page())
+
     status = 'succeeded'
     timer = TimedProgress(timeout, prefix='      ')
     try:
-        result = run(cmd, stdout=PIPE, stderr=PIPE, cwd=link_dir, timeout=timeout)
-
-        if result.returncode:
-            hints = (result.stderr or result.stdout).decode()
-            raise ArchiveError('Failed to print PDF', hints)
+        asyncio.get_event_loop().run_until_complete(page.goto(link['url'], timeout=timeout * 1000, waitUntil='domcontentloaded'))
+        asyncio.get_event_loop().run_until_complete(asyncio.wait_for(page.pdf(
+            path=os.path.join(link_dir, output),
+            displayHeaderFooter=False, format='A4', printBackground=False,
+        ), timeout))
         
         chmod_file('output.pdf', cwd=link_dir)
     except Exception as err:
@@ -321,7 +318,11 @@ def fetch_pdf(link_dir, link, timeout=TIMEOUT):
         timer.end()
 
     return {
-        'cmd': cmd,
+        'cmd': [
+            *chrome_args(TIMEOUT=timeout),
+            '--print-to-pdf',
+            link['url'],
+        ],
         'pwd': link_dir,
         'output': output,
         'status': status,
