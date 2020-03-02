@@ -15,7 +15,7 @@ import sys
 
 from links import links_after_timestamp
 from index import write_links_index, load_links_index
-from archive_methods import archive_link
+from archive_methods import (archive_link, ArchiveError)
 from config import (
     ARCHIVE_DIR,
     ONLY_NEW,
@@ -113,14 +113,24 @@ def update_archive_data(import_path=None, resume=None):
     links = new_links if ONLY_NEW else all_links
     log_archiving_started(len(links), resume)
     idx, link = 0, 0
+    current_link = None
     try:
         for idx, link in enumerate(links_after_timestamp(links, resume)):
             link_dir = os.path.join(ARCHIVE_DIR, link['timestamp'])
+            current_link = link
             archive_link(link_dir, link)
 
     except KeyboardInterrupt:
         log_archiving_paused(len(links), idx, link and link['timestamp'])
         raise SystemExit(0)
+    
+    except ArchiveError as err:
+        for idx, link in enumerate(all_links):
+            if link['url'] == current_link['url']:
+                all_links[idx]['title'] = str(err)
+                break
+        write_links_index(out_dir=OUTPUT_DIR, links=all_links, finished=True)
+        raise
 
     except:
         print()
