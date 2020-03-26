@@ -5,12 +5,23 @@ from os import listdir
 from os.path import exists, join
 from shutil import rmtree
 from datetime import datetime
+from typing import Optional, List
 
 from config import ARCHIVE_DIR, OUTPUT_DIR
 from index import (parse_json_links_index, parse_json_link_index,
                    load_links_index, write_links_index)
 from links import validate_links
 
+def get_title_from_link_index(link) -> Optional[str]:
+    if (link.get('title')):
+        return link.get('title')
+    if (link.get('history') and
+        link.get('history').get('title') and
+        isinstance(link.get('history').get('title'), List) and
+        len(link.get('history').get('title')) > 0):
+        return link.get('history').get('title')[len(link.get('history').get('title')) - 1].get('output')
+    return None
+    
 
 def sync_index() -> None:
     if not exists(join(OUTPUT_DIR, 'index.json')):
@@ -62,6 +73,8 @@ def sync_index() -> None:
                 rmtree(data_dir)
             elif link.get('url') != None:
                 print('Folder {folder} contain archive of {url} but missing from index, adding'.format(folder=d, url=link['url']))
+                if (not(link.get('title'))):
+                    link['title'] = get_title_from_link_index(link)
                 links.append(link)
                 validate_links(links)
                 write_links_index(out_dir=OUTPUT_DIR, links=links, finished=True)
