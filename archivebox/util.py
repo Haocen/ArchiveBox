@@ -580,6 +580,7 @@ async def prepare_pyppeteer_page(**options):
         'executablePath': options['CHROME_BINARY'],
         'headless': False,
         'ignoreHTTPSErrors': True,
+        'autoClose': True,
         'args': [],
     }
 
@@ -617,3 +618,31 @@ async def prepare_pyppeteer_page(**options):
         'closeBrowser': closeBrowser,
         'options': options,
     }
+
+def _patch_pyppeteer():
+    from typing import Any
+    from pyppeteer import connection as _p_connection, launcher as _p_launcher
+    import websockets.client
+ 
+    class PatchedConnection(_p_connection.Connection):  # type: ignore
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            super().__init__(*args, **kwargs)
+            # the _ws argument is not yet connected, can simply be replaced with another
+            # with better defaults.
+            self._ws = websockets.client.connect(
+                self._url,
+                loop=self._loop,
+                # the following parameters are all passed to WebSocketCommonProtocol
+                # which markes all three as Optional, but connect() doesn't, hence the liberal
+                # use of type: ignore on these lines.
+                # fixed upstream but not yet released, see aaugustin/websockets#93ad88
+                max_size=None,  # type: ignore
+                ping_interval=None,  # type: ignore
+                ping_timeout=None,  # type: ignore
+            )
+ 
+    _p_connection.Connection = PatchedConnection
+    # also imported as a global in pyppeteer.launcher
+    _p_launcher.Connection = PatchedConnection
+
+_patch_pyppeteer()
