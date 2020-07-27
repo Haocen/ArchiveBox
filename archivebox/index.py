@@ -1,4 +1,5 @@
 import os
+import threading
 import json
 
 from datetime import datetime
@@ -79,6 +80,9 @@ def load_links_index(out_dir=OUTPUT_DIR, import_path=None):
 
     return all_links, new_links
 
+# avoid corrupting index file
+write_json_links_index_lock = threading.Lock()
+
 def write_json_links_index(out_dir, links):
     """write the json link index to a given path"""
 
@@ -95,7 +99,7 @@ def write_json_links_index(out_dir, links):
         'links': links,
     }
 
-    with open(path, 'w', encoding='utf-8') as f:
+    with open(path, 'w', encoding='utf-8') as f, write_json_links_index_lock:
         json.dump(index_json, f, indent=4, default=str)
 
     chmod_file(path)
